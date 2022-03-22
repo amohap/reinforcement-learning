@@ -101,7 +101,7 @@ Delta_save = np.zeros([N_episodes, 1])
 
 for n in range(N_episodes):
     S,X,allowed_a=env.Initialise_game()
-    epsilon_f = epsilon_0 / (1 + beta * n)   ## DECAYING EPSILON
+    epsilon_f = args.epsilon / (1 + args.beta * n)   ## DECAYING EPSILON
     Done=0                                   ## SET DONE TO ZERO (BEGINNING OF THE EPISODE)
     i = 1  ## COUNTER FOR NUMBER OF ACTIONS
     d = {}
@@ -135,7 +135,7 @@ for n in range(N_episodes):
                 else:
                     Qvalues1=ComputeQvalues(W1, W2, bias_W1, bias_W2, next_x, hiddenactivfunction , outeractivfunction)
                     a1=EpsilonGreedy_Policy(Qvalues1,0, allowed)
-                    dEdQ=R+gamma*Qvalues1[a1]- Qvalues[a]
+                    dEdQ=R+args.gamma*Qvalues1[a1]- Qvalues[a]
 
                 Delta_save[n,]=0.5*(dEdQ)*(dEdQ)
                 
@@ -153,8 +153,8 @@ for n in range(N_episodes):
                          H = (H>0).astype(int)*H
                 dYdW = H
 
-                W2[a,:]=W2[a,:]+eta*dEdQ*dQdY*dYdW
-                bias_W2[a]=bias_W2[a]+eta*dEdQ*dQdY
+                W2[a,:]=W2[a,:]+args.eta*dEdQ*dQdY*dYdW
+                bias_W2[a]=bias_W2[a]+args.eta*dEdQ*dQdY
 
                 ## update W1 and B1 after W2 and B2 were updated
                 if hiddenactivfunction == 1:
@@ -165,8 +165,8 @@ for n in range(N_episodes):
                     dYdZ =  W2[a,:].reshape(200, 1)
 
                 dZDW = X.reshape(1, 58)        
-                W1[:,:]=W1[:,:]+ eta*dEdQ*dQdY*dYdZ*dZDW 
-                bias_W1=bias_W1+ eta*dEdQ*dQdY*dYdZ.reshape(200,) 
+                W1[:,:]=W1[:,:]+ args.eta*dEdQ*dQdY*dYdZ*dZDW 
+                bias_W1=bias_W1+ args.eta*dEdQ*dQdY*dYdZ.reshape(200,) 
                 i = i-1
                 break
         
