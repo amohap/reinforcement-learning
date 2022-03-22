@@ -151,3 +151,35 @@ for n in range(N_episodes):
             bias_W1=bias_W1+ eta*dEdQ*dQdY*dYdZ.reshape(200,) 
             
             break
+        
+        # IF THE EPISODE IS NOT OVER...
+        else:
+            
+            Qvalues1=ComputeQvalues(W1, W2, bias_W1, bias_W2, X_next, hiddenactivfunction , outeractivfunction)
+            a1=EpsilonGreedy_Policy(Qvalues1,0, allowed_a_next)
+
+            # Compute the delta
+            dEdQ=R+gamma*Qvalues1[a1]- Qvalues[a]
+                    
+            ## update W2 and B2   
+            dQdY = 1  
+            if outeractivfunction == 1:
+                    dYdQ = Qvalues[a]*(1-Qvalues[a])
+            elif outeractivfunction == 2:
+                    dYdQ = (Qvalues[a]>0).astype(int)
+                    
+            H = np.matmul(W1,X) + bias_W1
+            if hiddenactivfunction == 1:
+                     H = np.round(1/(1+np.exp(-H)), 5)
+            elif(hiddenactivfunction == 2):
+                     H = (H>0).astype(int)*H
+            dYdW = H
+          
+            W2[a,:]=   W2[a,:]+   eta*dEdQ*dQdY*dYdW
+            bias_W2[a]=bias_W2[a]+eta*dEdQ*dQdY
+            
+            ## update W1 and B1 after W2 and B2 were updated
+            if hiddenactivfunction == 1:
+                dYdZ =  (W2[a,:].reshape(1, 200) * H*(1-H).reshape(1, 200)).reshape(200,1)
+            elif(hiddenactivfunction == 2):
+                dYdZ =  (W2[a,:].reshape(1, 200) * (H>0).astype(int)).reshape(200,1)
