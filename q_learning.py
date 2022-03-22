@@ -13,11 +13,15 @@ import random
 import argparse
 
 parser = argparse.ArgumentParser(description='Hyperparameter of SARSA algorithm')
-parser.add_argument('--epsilon', type=float, help='Starting value of Epsilon for the Epsilon-Greedy policy', required=True)
-parser.add_argument('--beta', type=float, help='The parameter sets how quickly the value of Epsilon is decaying', required=True)
-parser.add_argument('--gamma', type=float, help='The Discount Factor', required=True)
-parser.add_argument('--eta', type=float, help='The Learning Rate', required=True)
+parser.add_argument('--epsilon', type=float, help='Starting value of Epsilon for the Epsilon-Greedy policy', default=0.2)
+parser.add_argument('--beta', type=float, help='The parameter sets how quickly the value of Epsilon is decaying',default=0.00005)
+parser.add_argument('--gamma', type=float, help='The Discount Factor', default=0.85)
+parser.add_argument('--eta', type=float, help='The Learning Rate', default=0.0035)
 args = parser.parse_args()
+
+## INITIALISE THE ENVIRONMENT
+size_board = 4
+env=Chess_Env(size_board)
 
 def EpsilonGreedy_Policy(Qvalues, epsilon, allowed_a):
     
@@ -76,3 +80,27 @@ N_h=200                      ## NUMBER OF HIDDEN NODES
 ## INITALISE YOUR NEURAL NETWORK... Here weights from input to hidden layer and from the hidden layer to output layer are initialized
 W1 = np.random.randn(N_h, N_in) * np.sqrt(1 / (N_in)) 
 W2 = np.random.randn(N_a, N_h) * np.sqrt(1 / (N_h))
+
+bias_W1 = np.zeros((N_h,))
+bias_W2 = np.zeros((N_a,))
+
+# REWARD SCHEME DEFAULT
+# Reward if episode is not ended: 0
+# Reward if checkmate: 1
+# Reward if draw: 0
+
+N_episodes = 100000 # THE NUMBER OF GAMES TO BE PLAYED 100000
+
+hiddenactivfunction = 0
+outeractivfunction = 1
+
+# SAVING VARIABLES
+R_save = np.zeros([N_episodes, 1])
+N_moves_save = np.zeros([N_episodes, 1])
+Delta_save = np.zeros([N_episodes, 1])
+
+for n in range(N_episodes):
+    S,X,allowed_a=env.Initialise_game()
+    epsilon_f = epsilon_0 / (1 + beta * n)   ## DECAYING EPSILON
+    Done=0                                   ## SET DONE TO ZERO (BEGINNING OF THE EPISODE)
+    i = 1                                    ## COUNTER FOR NUMBER OF ACTIONS
