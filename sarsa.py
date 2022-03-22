@@ -9,6 +9,7 @@ from degree_freedom_king2 import *
 from generate_game import *
 from Chess_env import *
 import random
+import os
 
 import argparse
 
@@ -213,22 +214,33 @@ for n in range(N_episodes):
 
         i += 1  # UPDATE COUNTER FOR NUMBER OF ACTIONS
 
+filename = os.path.splitext(__file__)[0]
+
+save_path_dataframe_nmoves="experiments/{}/ep{}_be{}_ga{}_et{}/N_moves_SARSA.csv".format(filename, args.epsilon, args.gamma, args.eta)
+save_path_plots_nmoves="experiments/{}/ep{}_be{}_ga{}_et{}/nmoves.png".format(filename, args.epsilon, args.gamma, args.eta)
+
+save_path_dataframe_reward="experiments/{}/ep{}_be{}_ga{}_et{}/R_save_SARSA.csv".format(filename, args.epsilon, args.gamma, args.eta)
+save_path_plots_rsave="experiments/{}/ep{}_be{}_ga{}_et{}/rsave.png".format(filename, args.epsilon, args.gamma, args.eta)
+
+save_path_dataframe_delta="experiments/{}/ep{}_be{}_ga{}_et{}/Delta_save_SARSA.csv".format(filename, args.epsilon, args.gamma, args.eta)
+save_path_plots_delta="experiments/{}/ep{}_be{}_ga{}_et{}/delta.png".format(filename, args.epsilon, args.gamma, args.eta)
 
 # Plot the performance
 N_moves_save = pd.DataFrame(N_moves_save, columns = ['N_moves'])
-N_moves_save.to_csv('N_moves_SARSA.csv')
 N_moves_save['N_moves'] = N_moves_save['N_moves'].ewm(span=100, adjust=False).mean()
+N_moves_save.to_csv(save_path_dataframe_nmoves)
 
 plt.plot(N_moves_save['N_moves'])
 plt.xlabel('Episodes')
 plt.ylabel('Number of Steps until "Done"')
 plt.title('Average Number of Steps until "Done" per Episode')
 # plt.show()
+plt.savefig(save_path_plots_nmoves)
 
 
 R_save = pd.DataFrame(R_save, columns = ['R_save'])
-R_save.to_csv('R_save_SARSA.csv')
 R_save['R_save'] = R_save['R_save'].ewm(span=100, adjust=False).mean()
+R_save.to_csv(save_path_dataframe_reward)
 
 
 plt.plot(R_save)
@@ -236,11 +248,12 @@ plt.xlabel('Episodes')
 plt.ylabel('Reward')
 plt.title('Average Rewards per Episode')
 # plt.show()
+plt.savefig(save_path_plots_rsave)
 
 
 Delta_save = pd.DataFrame(Delta_save, columns = ['Delta_save'])
-Delta_save.to_csv('Delta_save_SARSA.csv')
 Delta_save['Delta_save'] = Delta_save['Delta_save'].ewm(span=100, adjust=False).mean()
+Delta_save.to_csv(save_path_dataframe_delta)
 
 
 plt.plot(Delta_save)
@@ -248,3 +261,4 @@ plt.xlabel('Episodes')
 plt.ylabel('Error')
 plt.title('Average Loss')
 # plt.show()
+plt.savefig(save_path_plots_delta)
