@@ -62,3 +62,17 @@ def ComputeQvalues(W1, W2, bias_W1, bias_W2, X, hiddenactivfunction , outeractiv
         Qvalues = (Qvalues>0).astype(int)*Qvalues
 
     return Qvalues
+
+# set seed
+np.random.seed(2022)
+
+# INITIALISE THE PARAMETERS OF YOUR NEURAL NETWORK
+S,X,allowed_a=env.Initialise_game()
+
+N_a=np.shape(allowed_a)[0]   # TOTAL NUMBER OF POSSIBLE ACTIONS
+N_in=np.shape(X)[0]          ## INPUT SIZE
+N_h=200                      ## NUMBER OF HIDDEN NODES
+
+## INITALISE YOUR NEURAL NETWORK... Here weights from input to hidden layer and from the hidden layer to output layer are initialized
+W1 = np.random.randn(N_h, N_in) * np.sqrt(1 / (N_in)) 
+W2 = np.random.randn(N_a, N_h) * np.sqrt(1 / (N_h))
