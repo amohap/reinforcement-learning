@@ -151,7 +151,7 @@ for n in range(N_episodes):
             bias_W1=bias_W1+ eta*dEdQ*dQdY*dYdZ.reshape(200,) 
             
             break
-        
+
         # IF THE EPISODE IS NOT OVER...
         else:
             
@@ -183,3 +183,18 @@ for n in range(N_episodes):
                 dYdZ =  (W2[a,:].reshape(1, 200) * H*(1-H).reshape(1, 200)).reshape(200,1)
             elif(hiddenactivfunction == 2):
                 dYdZ =  (W2[a,:].reshape(1, 200) * (H>0).astype(int)).reshape(200,1)
+            else:
+                dYdZ =  W2[a,:].reshape(200, 1)
+        
+            dZDW = X.reshape(1, 58)   
+            
+            W1[:,:]=W1[:,:]+ eta*dEdQ*dQdY*dYdZ*dZDW 
+            bias_W1=bias_W1+ eta*dEdQ*dQdY*dYdZ.reshape(200,) 
+            
+        # NEXT STATE AND CO. BECOME ACTUAL STATE...     
+        S=np.copy(S_next)
+        X=np.copy(X_next)
+        allowed_a = np.copy(allowed_a_next)
+       
+
+        i += 1  # UPDATE COUNTER FOR NUMBER OF ACTIONS
