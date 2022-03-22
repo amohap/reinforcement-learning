@@ -6,16 +6,17 @@ gammas=(1 2 4 8 16 32 64 128)
 etas=(1 2 4 8 16 32 64 128)
 
 for epsilon in ${epsilons[@]}; do
-    # echo $epsilon
     for beta in ${betas[@]}; do
-        # echo $beta
         for gamma in ${gammas[@]}; do
-            # echo $gamma
             for eta in ${etas[@]}; do
-                # echo $epsilon
-                # echo $beta
-                # echo $gamma
-                # echo $eta
+                path="ep${epsilon}_be${beta}_ga${gamma}_et${eta}"
+                if [ ! -d experiments/sarsa/$path ]; then
+                    mkdir -p experiments/sarsa/$path;
+                fi
+                echo "Epsilon: $epsilon" >> experiments/sarsa/$path/hyperparam.txt
+                echo "Beta: $beta" >> experiments/sarsa/$path/hyperparam.txt
+                echo "Gamma: $gamma" >> experiments/sarsa/$path/hyperparam.txt
+                echo "Eta: $eta" >> experiments/sarsa/$path/hyperparam.txt
                 python sarsa.py --epsilon $epsilon --beta $beta --gamma $gamma $eta eta
             done
         done

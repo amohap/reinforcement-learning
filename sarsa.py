@@ -223,7 +223,7 @@ plt.plot(N_moves_save['N_moves'])
 plt.xlabel('Episodes')
 plt.ylabel('Number of Steps until "Done"')
 plt.title('Average Number of Steps until "Done" per Episode')
-plt.show()
+# plt.show()
 
 
 R_save = pd.DataFrame(R_save, columns = ['R_save'])
@@ -235,7 +235,7 @@ plt.plot(R_save)
 plt.xlabel('Episodes')
 plt.ylabel('Reward')
 plt.title('Average Rewards per Episode')
-plt.show()
+# plt.show()
 
 
 Delta_save = pd.DataFrame(Delta_save, columns = ['Delta_save'])
@@ -247,4 +247,4 @@ plt.plot(Delta_save)
 plt.xlabel('Episodes')
 plt.ylabel('Error')
 plt.title('Average Loss')
-plt.show()
+# plt.show()
