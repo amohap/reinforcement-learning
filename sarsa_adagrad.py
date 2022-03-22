@@ -10,6 +10,14 @@ from generate_game import *
 from Chess_env import *
 import random
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Hyperparameter of SARSA algorithm')
+parser.add_argument('--epsilon', type=float, help='Starting value of Epsilon for the Epsilon-Greedy policy', default=0.2)
+parser.add_argument('--beta', type=float, help='The parameter sets how quickly the value of Epsilon is decaying',default=0.00005)
+parser.add_argument('--gamma', type=float, help='The Discount Factor', default=0.85)
+parser.add_argument('--eta', type=float, help='The Learning Rate', default=0.0035)
+args = parser.parse_args()
 
 ## INITIALISE THE ENVIRONMENT
 size_board = 4
@@ -51,7 +59,7 @@ for n in range(N_episodes):
     
     S,X,allowed_a=env.Initialise_game()
    
-    epsilon_f = epsilon_0 / (1 + beta * n)   ## DECAYING EPSILON
+    epsilon_f = args.epsilon / (1 + args.beta * n)   ## DECAYING EPSILON
     Done=0                                   ## SET DONE TO ZERO (BEGINNING OF THE EPISODE)
     i =  1                                        ## COUNTER FOR NUMBER OF ACTIONS
     if (n%10 ==0):
@@ -97,10 +105,10 @@ for n in range(N_episodes):
             grandientBias2 = dEdQ*dQdY
             G = np.round(np.append(gradient2, grandientBias2), 4)
             diagonal2[:,a] = diagonal2[:,a] + G**2
-            diagonal_to_use2 = (eps + diagonal2[:,a])**(-1/2)
+            diagonal_to_use2 = (args.eps + diagonal2[:,a])**(-1/2)
     
-            W2[a,:]=W2[a,:]+eta*diagonal_to_use2[0:-1]*gradient2
-            bias_W2[a]=bias_W2[a]+eta*diagonal_to_use2[-1]*grandientBias2
+            W2[a,:]=W2[a,:]+args.eta*diagonal_to_use2[0:-1]*gradient2
+            bias_W2[a]=bias_W2[a]+args.eta*diagonal_to_use2[-1]*grandientBias2
             
             ## update W1 and B1 after W2 and B2 were updated
             if hiddenactivfunction == 1:
@@ -119,8 +127,8 @@ for n in range(N_episodes):
             diagonal1 = diagonal1 + G**2
             diagonal_to_use1 = ((eps+diagonal1).reshape(200, -1))**(-1/2)
             
-            W1[:,:]=W1[:,:]+ eta*diagonal_to_use1[:, 0:-1]*gradient1
-            bias_W1=bias_W1+ eta*diagonal_to_use1[:, -1]*grandientBias1.reshape(200,)
+            W1[:,:]=W1[:,:]+ args.eta*diagonal_to_use1[:, 0:-1]*gradient1
+            bias_W1=bias_W1+ args.eta*diagonal_to_use1[:, -1]*grandientBias1.reshape(200,)
             
             break
 
@@ -133,7 +141,7 @@ for n in range(N_episodes):
             a1=EpsilonGreedy_Policy(Qvalues1,epsilon_f, allowed_a_next)
 
             # Compute the delta
-            dEdQ=R+gamma*Qvalues1[a1] - Qvalues[a]
+            dEdQ=R+args.gamma*Qvalues1[a1] - Qvalues[a]
          
                   
             ## update W2 and B2   
@@ -155,10 +163,10 @@ for n in range(N_episodes):
             G = np.round(np.append(gradient2, grandientBias2), 4)
             
             diagonal2[:,a] = diagonal2[:,a] + G**2
-            diagonal_to_use2 = (eps + diagonal2[:,a])**(-1/2)
+            diagonal_to_use2 = (args.eps + diagonal2[:,a])**(-1/2)
     
-            W2[a,:]=W2[a,:]+eta*diagonal_to_use2[0:-1]*gradient2
-            bias_W2[a]=bias_W2[a]+eta*diagonal_to_use2[-1]*grandientBias2
+            W2[a,:]=W2[a,:]+args.eta*diagonal_to_use2[0:-1]*gradient2
+            bias_W2[a]=bias_W2[a]+args.eta*diagonal_to_use2[-1]*grandientBias2
             
             ## update W1 and B1 after W2 and B2 were updated
             if hiddenactivfunction == 1:
@@ -175,10 +183,10 @@ for n in range(N_episodes):
             G = np.ravel(np.concatenate((gradient1, grandientBias1), axis=1))
 
             diagonal1 = diagonal1 + G**2
-            diagonal_to_use1 = ((eps+diagonal1).reshape(200, -1))**(-1/2)
+            diagonal_to_use1 = ((args.eps+diagonal1).reshape(200, -1))**(-1/2)
                     
-            W1[:,:]=W1[:,:]+ eta*diagonal_to_use1[:, 0:-1]*gradient1
-            bias_W1=bias_W1+ eta*diagonal_to_use1[:, -1]*grandientBias1.reshape(200,)
+            W1[:,:]=W1[:,:]+ args.eta*diagonal_to_use1[:, 0:-1]*gradient1
+            bias_W1=bias_W1+ args.eta*diagonal_to_use1[:, -1]*grandientBias1.reshape(200,)
            
             
         # NEXT STATE AND CO. BECOME ACTUAL STATE...     
