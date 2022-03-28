@@ -24,6 +24,49 @@ args = parser.parse_args()
 size_board = 4
 env=Chess_Env(size_board)
 
+def EpsilonGreedy_Policy(Qvalues, epsilon, allowed_a):
+    
+    N_a=np.shape(Qvalues)[0]
+    a = list(range(0, N_a))
+    a = [i for idx, i in enumerate(a) if allowed_a[idx]]
+    Qvalues = [i for idx, i in enumerate(Qvalues) if allowed_a[idx]]
+
+    rand_value=np.random.uniform(0,1)
+ ## epsilon is probability that we go random
+    rand_a=rand_value<epsilon
+
+    if rand_a==True:
+        
+        a = random.choice(a)
+    else:
+        idx=np.argmax(Qvalues)
+     
+        a = a[idx]  
+
+    return a
+
+
+def ComputeQvalues(W1, W2, bias_W1, bias_W2, X, hiddenactivfunction , outeractivfunction):
+    ## Qvalues=np.matmul(W2, np.matmul(W1,X)) ## this is direct computation of hidden layer and then output layer, without applying any non linear activation function
+    ## below is a better solution:
+    # Neural activation: input layer -> hidden layer
+    H1 = np.matmul(W1,X)+bias_W1 ## make sure that bias_W1 does not need to be transposed
+    # if hidden activ function is given:
+    if (hiddenactivfunction == 1):
+        H1 = np.round(1/(1+np.exp(-H1)), 5) ## sigmoid
+    elif(hiddenactivfunction == 2):
+         H1 = (H1>0).astype(int)*H1  ## RELU
+        
+    Qvalues = np.matmul(W2,H1) + bias_W2
+    
+    #if outer activ function is given
+    if (outeractivfunction == 1):
+        Qvalues = np.round(1/(1+np.exp(- Qvalues)), 5)
+    elif (outeractivfunction == 2):
+        Qvalues = (Qvalues>0).astype(int)*Qvalues
+
+    return Qvalues
+
 # set seed
 np.random.seed(2022)
 
@@ -46,7 +89,7 @@ bias_W2 = np.zeros((N_a,))
 # Reward if checkmate: 1
 # Reward if draw: 0
 
-N_episodes = 100000 # THE NUMBER OF GAMES TO BE PLAYED 100000
+N_episodes = 200 # THE NUMBER OF GAMES TO BE PLAYED 100000
 
 hiddenactivfunction = 0
 outeractivfunction = 1
@@ -106,7 +149,7 @@ for n in range(N_episodes):
             grandientBias2 = dEdQ*dQdY
             G = np.round(np.append(gradient2, grandientBias2), 4)
             diagonal2[:,a] = diagonal2[:,a] + G**2
-            diagonal_to_use2 = (args.eps + diagonal2[:,a])**(-1/2)
+            diagonal_to_use2 = (args.epsilon + diagonal2[:,a])**(-1/2)
     
             W2[a,:]=W2[a,:]+args.eta*diagonal_to_use2[0:-1]*gradient2
             bias_W2[a]=bias_W2[a]+args.eta*diagonal_to_use2[-1]*grandientBias2
@@ -126,7 +169,7 @@ for n in range(N_episodes):
             G = np.ravel(np.concatenate((gradient1, grandientBias1), axis=1))
 
             diagonal1 = diagonal1 + G**2
-            diagonal_to_use1 = ((eps+diagonal1).reshape(200, -1))**(-1/2)
+            diagonal_to_use1 = ((args.epsilon+diagonal1).reshape(200, -1))**(-1/2)
             
             W1[:,:]=W1[:,:]+ args.eta*diagonal_to_use1[:, 0:-1]*gradient1
             bias_W1=bias_W1+ args.eta*diagonal_to_use1[:, -1]*grandientBias1.reshape(200,)
@@ -164,7 +207,7 @@ for n in range(N_episodes):
             G = np.round(np.append(gradient2, grandientBias2), 4)
             
             diagonal2[:,a] = diagonal2[:,a] + G**2
-            diagonal_to_use2 = (args.eps + diagonal2[:,a])**(-1/2)
+            diagonal_to_use2 = (args.epsilon + diagonal2[:,a])**(-1/2)
     
             W2[a,:]=W2[a,:]+args.eta*diagonal_to_use2[0:-1]*gradient2
             bias_W2[a]=bias_W2[a]+args.eta*diagonal_to_use2[-1]*grandientBias2
@@ -184,7 +227,7 @@ for n in range(N_episodes):
             G = np.ravel(np.concatenate((gradient1, grandientBias1), axis=1))
 
             diagonal1 = diagonal1 + G**2
-            diagonal_to_use1 = ((args.eps+diagonal1).reshape(200, -1))**(-1/2)
+            diagonal_to_use1 = ((args.epsilon+diagonal1).reshape(200, -1))**(-1/2)
                     
             W1[:,:]=W1[:,:]+ args.eta*diagonal_to_use1[:, 0:-1]*gradient1
             bias_W1=bias_W1+ args.eta*diagonal_to_use1[:, -1]*grandientBias1.reshape(200,)
@@ -200,33 +243,44 @@ for n in range(N_episodes):
 
 filename = os.path.splitext(__file__)[0]
 
-save_path_dataframe_nmoves="experiments/{}/ep{}_be{}_ga{}_et{}/N_moves_Adagrad_good.csv".format(filename, args.epsilon, args.gamma, args.eta)
-save_path_plots_nmoves="experiments/{}/ep{}_be{}_ga{}_et{}/nmoves.png".format(filename, args.epsilon, args.gamma, args.eta)
+save_path_dataframe_nmoves_ema="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/N_moves_SARSA_ema.csv".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
+save_path_dataframe_nmoves="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/N_moves_SARSA.csv".format(filename, args.epsilon,args.beta, args.gamma, args.eta)
+# print(save_path_dataframe_nmoves)
+save_path_plots_nmoves="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/nmoves.png".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
 
-save_path_dataframe_reward="experiments/{}/ep{}_be{}_ga{}_et{}/R_save_Adagrad_good.csv".format(filename, args.epsilon, args.gamma, args.eta)
-save_path_plots_rsave="experiments/{}/ep{}_be{}_ga{}_et{}/rsave.png".format(filename, args.epsilon, args.gamma, args.eta)
+save_path_dataframe_reward_ema="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/R_save_SARSA_ema.csv".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
+save_path_dataframe_reward="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/R_save_SARSA.csv".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
+save_path_plots_rsave="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/rsave.png".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
 
-save_path_dataframe_delta="experiments/{}/ep{}_be{}_ga{}_et{}/Delta_save_Adagrad_good.csv".format(filename, args.epsilon, args.gamma, args.eta)
-save_path_plots_delta="experiments/{}/ep{}_be{}_ga{}_et{}/delta.png".format(filename, args.epsilon, args.gamma, args.eta)
+save_path_dataframe_delta_ema="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/Delta_save_SARSA_ema.csv".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
+save_path_dataframe_delta="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/Delta_save_SARSA.csv".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
+save_path_plots_delta="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/delta.png".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
 
 # Plot the performance
+N_moves_save_ema = pd.DataFrame(N_moves_save, columns = ['N_moves'])
+N_moves_save_ema['N_moves'] = N_moves_save_ema['N_moves'].ewm(span=100, adjust=False).mean()
+N_moves_save_ema.to_csv(save_path_dataframe_nmoves_ema)
+
 N_moves_save = pd.DataFrame(N_moves_save, columns = ['N_moves'])
-N_moves_save['N_moves'] = N_moves_save['N_moves'].ewm(span=100, adjust=False).mean()
-N_moves_save.to_csv(save_path_plots_nmoves)
+N_moves_save.to_csv(save_path_dataframe_nmoves)
 
-
-plt.plot(N_moves_save['N_moves'])
+plt.plot(N_moves_save_ema['N_moves'])
 plt.xlabel('Episodes')
 plt.ylabel('Number of Steps until "Done"')
 plt.title('Average Number of Steps until "Done" per Episode')
 # plt.show()
 plt.savefig(save_path_plots_nmoves)
 
+
+R_save_ema = pd.DataFrame(R_save, columns = ['R_save'])
+R_save_ema['R_save'] = R_save_ema['R_save'].ewm(span=100, adjust=False).mean()
+R_save_ema.to_csv(save_path_dataframe_reward_ema)
+
 R_save = pd.DataFrame(R_save, columns = ['R_save'])
-R_save['R_save'] = R_save['R_save'].ewm(span=100, adjust=False).mean()
 R_save.to_csv(save_path_dataframe_reward)
 
-plt.plot(R_save)
+
+plt.plot(R_save_ema)
 plt.xlabel('Episodes')
 plt.ylabel('Reward')
 plt.title('Average Rewards per Episode')
@@ -234,11 +288,15 @@ plt.title('Average Rewards per Episode')
 plt.savefig(save_path_plots_rsave)
 
 
+Delta_save_ema = pd.DataFrame(Delta_save, columns = ['Delta_save'])
+Delta_save_ema['Delta_save'] = Delta_save_ema['Delta_save'].ewm(span=100, adjust=False).mean()
+Delta_save_ema.to_csv(save_path_dataframe_delta)
+
 Delta_save = pd.DataFrame(Delta_save, columns = ['Delta_save'])
-Delta_save['Delta_save'] = Delta_save['Delta_save'].ewm(span=100, adjust=False).mean()
 Delta_save.to_csv(save_path_dataframe_delta)
 
-plt.plot(Delta_save)
+
+plt.plot(Delta_save_ema)
 plt.xlabel('Episodes')
 plt.ylabel('Error')
 plt.title('Average Loss')
