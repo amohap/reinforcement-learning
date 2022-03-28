@@ -90,7 +90,7 @@ bias_W2 = np.zeros((N_a,))
 # Reward if checkmate: 1
 # Reward if draw: 0
 
-N_episodes = 100 # THE NUMBER OF GAMES TO BE PLAYED 100000
+N_episodes = 100000 # THE NUMBER OF GAMES TO BE PLAYED 100000
 
 hiddenactivfunction = 0
 outeractivfunction = 1
@@ -217,7 +217,7 @@ save_path_plots_delta="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/d
 
 # Plot the performance
 N_moves_save_ema = pd.DataFrame(N_moves_save, columns = ['N_moves'])
-N_moves_save_ema['N_moves'] = N_moves_save_ema['N_moves'].ewm(span=100, adjust=False).mean()
+N_moves_save_ema['N_moves'] = N_moves_save_ema['N_moves'].ewm(span=2000, adjust=False).mean()
 N_moves_save_ema.to_csv(save_path_dataframe_nmoves_ema)
 
 N_moves_save = pd.DataFrame(N_moves_save, columns = ['N_moves'])
@@ -230,9 +230,10 @@ plt.ylabel('Number of Steps until "Done"')
 plt.title('Average Number of Steps until "Done" per Episode')
 # plt.show()
 plt.savefig(save_path_plots_nmoves)
+plt.close()
 
 R_save_ema = pd.DataFrame(R_save, columns = ['R_save'])
-R_save_ema['R_save'] = R_save_ema['R_save'].ewm(span=100, adjust=False).mean()
+R_save_ema['R_save'] = R_save_ema['R_save'].ewm(span=2000, adjust=False).mean()
 R_save_ema.to_csv(save_path_dataframe_reward_ema)
 
 R_save = pd.DataFrame(R_save, columns = ['R_save'])
@@ -244,10 +245,11 @@ plt.ylabel('Reward')
 plt.title('Average Rewards per Episode')
 # plt.show()
 plt.savefig(save_path_plots_rsave)
+plt.close()
 
 
 Delta_save_ema = pd.DataFrame(Delta_save, columns = ['Delta_save'])
-Delta_save_ema['Delta_save'] = Delta_save_ema['Delta_save'].ewm(span=100, adjust=False).mean()
+Delta_save_ema['Delta_save'] = Delta_save_ema['Delta_save'].ewm(span=2000, adjust=False).mean()
 Delta_save_ema.to_csv(save_path_dataframe_delta)
 
 Delta_save = pd.DataFrame(Delta_save, columns = ['Delta_save'])
@@ -259,3 +261,4 @@ plt.ylabel('Error')
 plt.title('Average Loss')
 # plt.show()
 plt.savefig(save_path_plots_delta)
+plt.close()
