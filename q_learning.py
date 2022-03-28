@@ -90,7 +90,7 @@ bias_W2 = np.zeros((N_a,))
 # Reward if checkmate: 1
 # Reward if draw: 0
 
-N_episodes = 100000 # THE NUMBER OF GAMES TO BE PLAYED 100000
+N_episodes = 100 # THE NUMBER OF GAMES TO BE PLAYED 100000
 
 hiddenactivfunction = 0
 outeractivfunction = 1
@@ -202,33 +202,43 @@ for n in range(N_episodes):
 
 filename = os.path.splitext(__file__)[0]
 
-save_path_dataframe_nmoves="experiments/{}/ep{}_be{}_ga{}_et{}/N_moves_QLearning.csv".format(filename, args.epsilon, args.gamma, args.eta)
-save_path_plots_nmoves="experiments/{}/ep{}_be{}_ga{}_et{}/nmoves.png".format(filename, args.epsilon, args.gamma, args.eta)
+save_path_dataframe_nmoves_ema="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/N_moves_QLearning_ema.csv".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
+save_path_dataframe_nmoves="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/N_moves_QLearning.csv".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
+# print(save_path_dataframe_nmoves)
+save_path_plots_nmoves="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/nmoves.png".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
 
-save_path_dataframe_reward="experiments/{}/ep{}_be{}_ga{}_et{}/R_save_QLearning.csv".format(filename, args.epsilon, args.gamma, args.eta)
-save_path_plots_rsave="experiments/{}/ep{}_be{}_ga{}_et{}/rsave.png".format(filename, args.epsilon, args.gamma, args.eta)
+save_path_dataframe_reward_ema="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/R_save_QLearning_ema.csv".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
+save_path_dataframe_reward="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/R_save_QLearning.csv".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
+save_path_plots_rsave="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/rsave.png".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
 
-save_path_dataframe_delta="experiments/{}/ep{}_be{}_ga{}_et{}/Delta_save_QLearning.csv".format(filename, args.epsilon, args.gamma, args.eta)
-save_path_plots_delta="experiments/{}/ep{}_be{}_ga{}_et{}/delta.png".format(filename, args.epsilon, args.gamma, args.eta)
+save_path_dataframe_delta_ema="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/Delta_save_QLearning_ema.csv".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
+save_path_dataframe_delta="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/Delta_save_QLearning.csv".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
+save_path_plots_delta="experiments/{0}/ep{1:.5f}_be{2:.5f}_ga{3:.5f}_et{4:.5f}/delta.png".format(filename, args.epsilon, args.beta, args.gamma, args.eta)
 
 # Plot the performance
+N_moves_save_ema = pd.DataFrame(N_moves_save, columns = ['N_moves'])
+N_moves_save_ema['N_moves'] = N_moves_save_ema['N_moves'].ewm(span=100, adjust=False).mean()
+N_moves_save_ema.to_csv(save_path_dataframe_nmoves_ema)
+
 N_moves_save = pd.DataFrame(N_moves_save, columns = ['N_moves'])
-N_moves_save['N_moves'] = N_moves_save['N_moves'].ewm(span=100, adjust=False).mean()
 N_moves_save.to_csv(save_path_dataframe_nmoves)
 
 
-plt.plot(N_moves_save['N_moves'])
+plt.plot(N_moves_save_ema['N_moves'])
 plt.xlabel('Episodes')
 plt.ylabel('Number of Steps until "Done"')
 plt.title('Average Number of Steps until "Done" per Episode')
 # plt.show()
 plt.savefig(save_path_plots_nmoves)
 
+R_save_ema = pd.DataFrame(R_save, columns = ['R_save'])
+R_save_ema['R_save'] = R_save_ema['R_save'].ewm(span=100, adjust=False).mean()
+R_save_ema.to_csv(save_path_dataframe_reward_ema)
+
 R_save = pd.DataFrame(R_save, columns = ['R_save'])
-R_save['R_save'] = R_save['R_save'].ewm(span=100, adjust=False).mean()
 R_save.to_csv(save_path_dataframe_reward)
 
-plt.plot(R_save)
+plt.plot(R_save_ema)
 plt.xlabel('Episodes')
 plt.ylabel('Reward')
 plt.title('Average Rewards per Episode')
@@ -236,11 +246,14 @@ plt.title('Average Rewards per Episode')
 plt.savefig(save_path_plots_rsave)
 
 
+Delta_save_ema = pd.DataFrame(Delta_save, columns = ['Delta_save'])
+Delta_save_ema['Delta_save'] = Delta_save_ema['Delta_save'].ewm(span=100, adjust=False).mean()
+Delta_save_ema.to_csv(save_path_dataframe_delta)
+
 Delta_save = pd.DataFrame(Delta_save, columns = ['Delta_save'])
-Delta_save['Delta_save'] = Delta_save['Delta_save'].ewm(span=100, adjust=False).mean()
 Delta_save.to_csv(save_path_dataframe_delta)
 
-plt.plot(Delta_save)
+plt.plot(Delta_save_ema)
 plt.xlabel('Episodes')
 plt.ylabel('Error')
 plt.title('Average Loss')
