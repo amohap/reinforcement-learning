@@ -17,11 +17,11 @@ hyperparameters as the directory name, example `sarsa_adagrad/ep0.1_be0.2_ga0.3_
 
  ## SARSA vs. Q-Learning
 
- - Number of Steps per Episode
+ ##### Number of Steps per Episode
  ![N_steps_sarsa_qlearning](https://github.com/amohap/reinforcement-learning/blob/main/plotting/sarsa_qlearning_default/svsq_report_N_moves.png)
 
- - Reward
+ ##### Reward
  ![Reward_sarsa_qlearning](https://github.com/amohap/reinforcement-learning/blob/main/plotting/sarsa_qlearning_default/svsq_report_reward.png)
 
- - Loss
+ ##### Loss
  ![Loss_sarsa_qlearning](https://github.com/amohap/reinforcement-learning/blob/main/plotting/sarsa_qlearning_default/svsq_report_delta.png)
