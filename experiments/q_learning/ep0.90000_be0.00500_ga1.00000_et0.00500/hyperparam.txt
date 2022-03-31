@@ -6,3 +6,7 @@ Epsilon: 0.90000
 Beta: 0.00500
 Gamma: 1.00000
 Eta: 0.00500
+Epsilon: 0.90000
+Beta: 0.00500
+Gamma: 1.00000
+Eta: 0.00500

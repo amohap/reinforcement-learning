@@ -18,17 +18,18 @@ hyperparameters as the directory name, example `sarsa_adagrad/ep0.1_be0.2_ga0.3_
  In addition to this, the hyperparameters are saved in a text file `hyperparam.txt` and the plots are also saved inside this directory.
 
 ---
+Experience replay: in ex_replay.py incremental version is stored. Once the episode is finished we take the batch fromthe database and unfold it backwards recalculating Q values. In Assignement - default.py mini batch version is realized.
 
 ## SARSA vs. Q-Learning
 
 ##### Number of Steps per Episode
-![N_steps_sarsa_qlearning](https://github.com/amohap/reinforcement-learning/blob/main/plotting/sarsa_qlearning_default/svsq_report_N_moves.png)
+![N_steps_sarsa_qlearning](https://github.com/amohap/reinforcement-learning/blob/main/plotting/sarsa_qlearning_default/svsq_better_report_N_moves.png)
 
 ##### Reward
-![Reward_sarsa_qlearning](https://github.com/amohap/reinforcement-learning/blob/main/plotting/sarsa_qlearning_default/svsq_report_reward.png)
+![Reward_sarsa_qlearning](https://github.com/amohap/reinforcement-learning/blob/main/plotting/sarsa_qlearning_default/svsq_better_report_reward.png)
 
 ##### Loss
-![Loss_sarsa_qlearning](https://github.com/amohap/reinforcement-learning/blob/main/plotting/sarsa_qlearning_default/svsq_report_delta.png)
+![Loss_sarsa_qlearning](https://github.com/amohap/reinforcement-learning/blob/main/plotting/sarsa_qlearning_default/svsq_better_report_delta.png)
 
 ---
 
